@@ -1,0 +1,808 @@
+{
+  "version": "1.0.0",
+  "source": "短剧的卡审制度",
+  "note": "平台卡审规则库。validate_project.py 对剧本/分镜文本强制执行，build_prompts.py 对提示词强制执行，negative_prompt 自动注入画面禁用元素。text_whitelist 为全局豁免短语（关键词命中区间完全落在短语内则不计），项目级豁免写在 project.json 的 meta.review_whitelist。人读版见 references/review_rules.md。",
+  "text_whitelist": [],
+  "image_negative": {
+    "en": "national flag, national emblem, party flag, party constitution, map of china, world map, portrait of a leader, portrait of Mao, wall slogans, famous quotations on wall, police badge, police insignia, shoulder epaulettes, military insignia, military cap badge, RMB banknotes, paper currency, cash, coins, dollar bills, yen, euro, brand logo, trademark, product label, real company name, real city name, city landmark, university crest, courthouse building, celebrity face, recognizable actor face, otome game character, exposed cleavage, buttocks close-up, stockings, garter, sex toy, massage device, lingerie display, cigarette, cigar, smoking pipe, smoke plume, KTV private room, massage parlor, blood splatter, dismembered limb, blood mist, vomiting blood, stabbing, torture, excrement, feces, snakes, insects, rats, trypophobia pattern, on-screen text, subtitles, caption text, text overlay",
+    "zh": "国徽，国旗，党旗，党章，中国地图，世界地图，领导人画像，毛主席头像，伟人画像，墙体标语，名人语录，警徽，警察标识，肩章，警号，军徽，军装标识，人民币，纸币，现金，钞票，硬币，美元，日元，欧元，外币，品牌商标，LOGO，商品标签，真实公司名称，真实城市名，城市地标，大学徽章，法院建筑，明星脸，可辨认的演员脸，乙游形象，裸露胸部，臀部特写，丝袜，吊带袜，情趣道具，按摩棒，情趣套装，烟，雪茄，纸烟，旱烟，烟雾，KTV包间，按摩院，大量吐血，断肢，血雾，连捅数刀，酷刑，反复抽打，排泄物，粪便，蛇，虫，鼠，画面文字，字幕，台词字幕，屏幕文字"
+  },
+  "video_negative": {
+    "en": "national flag, national emblem, police badge, shoulder epaulettes, military insignia, RMB banknotes, cash, brand logo, trademark, real company name, real city landmark, celebrity face, otome game character, exposed cleavage, stockings, sex toy, cigarette, cigar, smoke plume, blood splatter, dismembered limb, blood mist, stabbing motion, torture, excrement, moaning, panting, sexual intercourse motion, bed scene, kissing on bed, kissing on sofa, on-screen text, subtitles, caption text, text overlay",
+    "zh": "国徽，国旗，警徽，肩章，军徽，人民币，纸币，现金，品牌商标，LOGO，真实公司名称，城市地标，明星脸，乙游形象，裸露胸部，丝袜，情趣道具，烟，雪茄，烟雾，大量吐血，断肢，血雾，连捅数刀，酷刑，排泄物，呻吟声，喘息声，性行为动作，床戏，床上吻戏，沙发吻戏，画面文字，字幕，台词字幕，屏幕文字"
+  },
+  "text_checks": [
+    {
+      "id": "R01",
+      "level": "forbidden",
+      "title": "国家敏感元素",
+      "keywords_zh": [
+        "国徽",
+        "国旗",
+        "党旗",
+        "党章",
+        "中国地图",
+        "世界地图",
+        "版图",
+        "毛主席头像",
+        "毛主席像",
+        "伟人画像",
+        "领导人画像",
+        "警徽",
+        "警察标识",
+        "肩章",
+        "警号",
+        "军徽",
+        "军装标识",
+        "国歌"
+      ],
+      "keywords_en": [
+        "national flag",
+        "national emblem",
+        "party flag",
+        "party constitution",
+        "map of china",
+        "world map",
+        "portrait of mao",
+        "leader portrait",
+        "police badge",
+        "police insignia",
+        "epaulette",
+        "military insignia"
+      ],
+      "fix": "删除该元素。确需表现货币时改用牛皮纸袋、金条、银元宝。"
+    },
+    {
+      "id": "R02",
+      "level": "forbidden",
+      "title": "现实币种",
+      "keywords_zh": [
+        "人民币",
+        "纸币",
+        "钞票",
+        "现金",
+        "硬币",
+        "美元",
+        "日元",
+        "欧元",
+        "英镑",
+        "台币",
+        "港币"
+      ],
+      "keywords_en": [
+        "RMB",
+        "banknote",
+        "paper currency",
+        "cash",
+        "coins",
+        "dollar bill",
+        "yen",
+        "euro"
+      ],
+      "fix": "改用牛皮纸袋子、金条、银元宝、布帛等替代物。"
+    },
+    {
+      "id": "R03",
+      "level": "forbidden",
+      "title": "撞脸明星 / 短剧演员 / 乙游形象",
+      "keywords_zh": [
+        "明星脸",
+        "撞脸",
+        "长得像明星",
+        "黎深",
+        "乙游",
+        "恋与深空",
+        "某个演员",
+        "某位明星"
+      ],
+      "keywords_en": [
+        "celebrity lookalike",
+        "looks like a celebrity",
+        "resembling actor",
+        "otome game character",
+        "anime game character face"
+      ],
+      "fix": "改为原创五官描述，禁止使用任何可辨认真人的名字或形象。"
+    },
+    {
+      "id": "R04",
+      "level": "forbidden",
+      "title": "性行为过程与过度亲密",
+      "keywords_zh": [
+        "床戏",
+        "性行为",
+        "性爱",
+        "做爱",
+        "ML过程",
+        "呻吟",
+        "喘息",
+        "迷药",
+        "下药",
+        "强奸",
+        "迷奸",
+        "情趣道具",
+        "按摩棒",
+        "情趣套装",
+        "半裸露胸部",
+        "露沟",
+        "臀部特写",
+        "床上吻",
+        "沙发上吻",
+        "床上亲",
+        "沙发上亲",
+        "蹲伏在男人裆部",
+        "粘液",
+        "水渍"
+      ],
+      "keywords_en": [
+        "sex scene",
+        "sexual intercourse",
+        "lovemaking",
+        "moaning",
+        "panting",
+        "aphrodisiac",
+        "rape",
+        "sex toy",
+        "massage device",
+        "exposed cleavage",
+        "buttocks close-up",
+        "kissing on bed",
+        "kissing on sofa",
+        "crotch"
+      ],
+      "fix": "删除或改为镜头外处理（切门、切窗、切反应）。亲密戏只保留地面/墙上且无喘息声。"
+    },
+    {
+      "id": "R05",
+      "level": "forbidden",
+      "title": "家庭成员相残",
+      "keywords_zh": [
+        "杀儿子",
+        "杀兄弟",
+        "杀兄妹",
+        "杀父亲",
+        "杀母亲",
+        "弑父",
+        "弑母",
+        "亲子相残",
+        "兄弟姐妹相残",
+        "自相残杀",
+        "杀害亲人",
+        "手刃至亲"
+      ],
+      "keywords_en": [
+        "kill his son",
+        "kill her son",
+        "kill his brother",
+        "kill his sister",
+        "patricide",
+        "matricide",
+        "killing own family"
+      ],
+      "fix": "改为商业/情感层面的决裂（断绝关系、收回股权），不得出现至亲相杀。"
+    },
+    {
+      "id": "R06",
+      "level": "forbidden",
+      "title": "极端羞辱与虐待",
+      "keywords_zh": [
+        "浸猪笼",
+        "栓狗链",
+        "关狗笼",
+        "吃狗食",
+        "狗食盆",
+        "侮辱死者",
+        "遗照",
+        "棺材",
+        "牌位",
+        "骨灰",
+        "非人虐待",
+        "人格践踏"
+      ],
+      "keywords_en": [
+        "drowning cage",
+        "dog chain",
+        "dog cage",
+        "eating dog food",
+        "desecrate the dead",
+        "funeral portrait",
+        "coffin",
+        "ancestral tablet",
+        "ashes"
+      ],
+      "fix": "改为语言冲突或经济制裁，禁止人格践踏与亵渎死者。"
+    },
+    {
+      "id": "R07",
+      "level": "forbidden",
+      "title": "家庭成员恋爱 / 乱伦 / 猎奇婚恋",
+      "keywords_zh": [
+        "乱伦",
+        "兄妹恋",
+        "父女恋",
+        "母子恋",
+        "叔嫂恋",
+        "家庭成员恋爱",
+        "替母续婚",
+        "与监护人结婚",
+        "和乳母结婚",
+        "租赁婚姻",
+        "生育对象",
+        "租妻"
+      ],
+      "keywords_en": [
+        "incest",
+        "sibling romance",
+        "romance with guardian",
+        "marry the stepmother",
+        "rental marriage",
+        "rented womb"
+      ],
+      "fix": "改为无血缘或已解除法律关系的关系，或整条删除。"
+    },
+    {
+      "id": "R08",
+      "level": "forbidden",
+      "title": "未成年不良行为",
+      "keywords_zh": [
+        "未成年抽烟",
+        "未成年喝酒",
+        "学生抽烟",
+        "学生喝酒",
+        "早恋",
+        "师生恋",
+        "校园霸凌",
+        "霸凌同学",
+        "未成年吸毒",
+        "未成年赌博",
+        "未成年嫖娼",
+        "未成年抢劫",
+        "未成年盗窃",
+        "未成年自残",
+        "未成年自杀",
+        "未成年说脏话",
+        "未成年打架",
+        "未成年互骂",
+        "野孩子",
+        "迫害未成年",
+        "欺负同学"
+      ],
+      "keywords_en": [
+        "underage smoking",
+        "underage drinking",
+        "student romance with teacher",
+        "campus bullying",
+        "minor gambling",
+        "minor self-harm"
+      ],
+      "fix": "校园题材改为学业/友谊/家庭冲突；霸凌情节只写后果与矫正，不写过程。"
+    },
+    {
+      "id": "R09",
+      "level": "forbidden",
+      "title": "公职人员不良形象",
+      "keywords_zh": [
+        "警察贪污",
+        "警察打人",
+        "警察收贿",
+        "医生不救人",
+        "医生见死不救",
+        "护士虐待",
+        "教师侮辱学生",
+        "老师侮辱学生",
+        "消防员失职",
+        "公务员受贿",
+        "公职人员反派",
+        "黑警",
+        "庸医",
+        "坏警察"
+      ],
+      "keywords_en": [
+        "corrupt cop",
+        "cop taking bribe",
+        "doctor refuses to save",
+        "teacher insults student",
+        "incompetent firefighter"
+      ],
+      "fix": "公职人员不得为反派、不得渎职。可写私立教师/医生，篇幅不宜过大。"
+    },
+    {
+      "id": "R10",
+      "level": "forbidden",
+      "title": "涉政军党与民族红线",
+      "keywords_zh": [
+        "真实伟人语录",
+        "映射真实事件",
+        "灭东瀛",
+        "叙国战争",
+        "世界第一强国",
+        "国家机密",
+        "危害国家统一",
+        "破坏民族团结",
+        "民族仇恨",
+        "民族歧视",
+        "低人一等",
+        "不如其他民族",
+        "不尊重信仰"
+      ],
+      "keywords_en": [
+        "world's strongest nation",
+        "leak state secrets",
+        "ethnic hatred",
+        "ethnic discrimination"
+      ],
+      "fix": "完全架空，不得出现或隐射真实伟人、语录、军事政治事件与民族优劣表述。"
+    },
+    {
+      "id": "R11",
+      "level": "forbidden",
+      "title": "历史与名著改编红线",
+      "keywords_zh": [
+        "真实历史年代",
+        "篡改历史",
+        "曲解历史",
+        "美化封建制度",
+        "歪曲抗战",
+        "吹嘘抗战",
+        "魔改历史人物",
+        "魔改名著",
+        "推翻原著",
+        "魔改神话人物",
+        "解构历史"
+      ],
+      "keywords_en": [
+        "distort history",
+        "rewrite historical figure",
+        "betray the original novel",
+        "reinvent mythology figure"
+      ],
+      "fix": "改用完全架空朝代，或严格遵循原著立意与人物设定。"
+    },
+    {
+      "id": "R12",
+      "level": "forbidden",
+      "title": "血腥暴力与观感不适",
+      "keywords_zh": [
+        "大量吐血",
+        "断肢",
+        "血雾",
+        "满屏血",
+        "连捅数刀",
+        "反复抽打",
+        "酷刑",
+        "割腕",
+        "割喉",
+        "开膛",
+        "排泄物",
+        "大便",
+        "小便",
+        "密集恐惧"
+      ],
+      "keywords_en": [
+        "blood mist",
+        "dismembered limb",
+        "vomiting blood",
+        "stabbing repeatedly",
+        "torture",
+        "slit wrist",
+        "slit throat",
+        "excrement",
+        "feces",
+        "trypophobia"
+      ],
+      "fix": "改为镜头外+声音+表情；血腥一律不做特写。"
+    },
+    {
+      "id": "R13",
+      "level": "forbidden",
+      "title": "抽烟行为",
+      "keywords_zh": [
+        "抽烟",
+        "吸烟",
+        "雪茄",
+        "纸烟",
+        "旱烟",
+        "烟袋",
+        "香烟",
+        "点烟",
+        "吐烟",
+        "烟雾缭绕"
+      ],
+      "keywords_en": [
+        "smoking",
+        "cigarette",
+        "cigar",
+        "smoking pipe",
+        "tobacco",
+        "smoke plume"
+      ],
+      "fix": "改为嚼槟榔替代物、喝茶、踱步等动作；打码成本高，直接不写。"
+    },
+    {
+      "id": "R14",
+      "level": "forbidden",
+      "title": "同性恋爱明确或暗指",
+      "keywords_zh": [
+        "男男恋爱",
+        "女女恋爱",
+        "双男主恋爱",
+        "双女主恋爱",
+        "同性恋情",
+        "同性爱人",
+        "BL剧情",
+        "GL剧情"
+      ],
+      "keywords_en": [
+        "gay romance",
+        "lesbian romance",
+        "boys love plot",
+        "girls love plot"
+      ],
+      "fix": "改为兄弟情/姐妹情/师徒情；如目标平台明确允许可降级为 avoid 并控制篇幅。"
+    },
+    {
+      "id": "R15",
+      "level": "forbidden",
+      "title": "毒品赌博与违法细节",
+      "keywords_zh": [
+        "吸毒",
+        "注射毒品",
+        "制毒",
+        "贩毒",
+        "赌博",
+        "设局赌博",
+        "嫖娼",
+        "拐卖",
+        "洗钱步骤"
+      ],
+      "keywords_en": [
+        "drug use",
+        "injecting drugs",
+        "drug trafficking",
+        "gambling den",
+        "prostitution",
+        "money laundering steps"
+      ],
+      "fix": "违法情节只写结果与代价，不写可复现手法。"
+    },
+    {
+      "id": "R16",
+      "level": "avoid",
+      "title": "亲子矛盾",
+      "keywords_zh": [
+        "父母侮辱亲生",
+        "偏袒",
+        "你考这点分",
+        "活着有什么用",
+        "子女攻击父母",
+        "辱骂父母",
+        "不赡养",
+        "争夺财产"
+      ],
+      "keywords_en": [
+        "parents humiliate own child",
+        "obvious favoritism",
+        "children attack parents"
+      ],
+      "fix": "可写但必须结尾回正（和解或明确批判），不得以认同态度收尾。"
+    },
+    {
+      "id": "R17",
+      "level": "avoid",
+      "title": "家暴",
+      "keywords_zh": [
+        "殴打妻子",
+        "家暴",
+        "敢离婚就杀你全家",
+        "限制孩子外出",
+        "精神打压",
+        "你就是个废物",
+        "连工作都保不住"
+      ],
+      "keywords_en": [
+        "domestic violence",
+        "beating wife",
+        "threatening to kill family"
+      ],
+      "fix": "可写但必须结尾回正（离开、报警、对方受惩），不得浪漫化。"
+    },
+    {
+      "id": "R18",
+      "level": "avoid",
+      "title": "婆媳矛盾",
+      "keywords_zh": [
+        "恶婆婆",
+        "恶媳妇",
+        "恶毒婆婆",
+        "刁难媳妇",
+        "虐待媳妇"
+      ],
+      "keywords_en": [
+        "evil mother-in-law",
+        "abusive mother-in-law"
+      ],
+      "fix": "可写但必须结尾回正。"
+    },
+    {
+      "id": "R19",
+      "level": "avoid",
+      "title": "非主流婚恋观",
+      "keywords_zh": [
+        "出轨",
+        "一夜情",
+        "老少恋",
+        "未婚先孕",
+        "婚姻皆为交易",
+        "婚姻就是算计",
+        "性爱分离",
+        "包办婚姻",
+        "以性报恩",
+        "有钱才配谈恋爱",
+        "必须有房有车"
+      ],
+      "keywords_en": [
+        "affair",
+        "one night stand",
+        "marriage is a transaction",
+        "sex as repayment"
+      ],
+      "fix": "可写但必须结尾回正（关系修复或明确批判），不得作为正向价值观输出。"
+    },
+    {
+      "id": "R20",
+      "level": "avoid",
+      "title": "拜金炫富",
+      "keywords_zh": [
+        "一千万的蛋糕",
+        "几百亿的合同",
+        "几千亿",
+        "身价千亿",
+        "财富衡量",
+        "卖亲人换钱",
+        "不劳而获",
+        "天价彩礼",
+        "直接给你一个亿"
+      ],
+      "keywords_en": [
+        "billion dollar contract",
+        "cake worth ten million",
+        "effortless fortune"
+      ],
+      "fix": "金额写实化（具体但不过亿），或改为非金钱的权力/信息博弈。"
+    },
+    {
+      "id": "R21",
+      "level": "avoid",
+      "title": "极端复仇与以暴治暴",
+      "keywords_zh": [
+        "以暴治暴",
+        "极端复仇",
+        "私刑",
+        "动用私刑",
+        "虐待反派",
+        "折磨反派",
+        "罔顾他人生命"
+      ],
+      "keywords_en": [
+        "vigilante violence",
+        "extreme revenge",
+        "torturing the villain"
+      ],
+      "fix": "复仇靠证据、规则、信息差完成；反派由法律/规则惩戒，不由主角动私刑。"
+    },
+    {
+      "id": "R22",
+      "level": "avoid",
+      "title": "语言羞辱与脏话",
+      "keywords_zh": [
+        "他妈的",
+        "妈的",
+        "妈了巴子",
+        "狗东西",
+        "废物",
+        "贱人",
+        "骚货",
+        "婊子",
+        "滚蛋",
+        "去死",
+        "脑残",
+        "智障",
+        "傻子",
+        "穷鬼",
+        "乡巴佬"
+      ],
+      "keywords_en": [
+        "damn it",
+        "bitch",
+        "idiot",
+        "moron",
+        "trash"
+      ],
+      "fix": "字幕用拼音或谐音字（如“去4”）；侮辱人格的直接删除，改为冷处理台词。"
+    },
+    {
+      "id": "R23",
+      "level": "avoid",
+      "title": "轻度虐待",
+      "keywords_zh": [
+        "扇巴掌",
+        "踩手",
+        "碾手",
+        "推倒",
+        "拽头发",
+        "泼水",
+        "扇耳光"
+      ],
+      "keywords_en": [
+        "slap in the face",
+        "stepping on hand",
+        "pulling hair",
+        "splash water"
+      ],
+      "fix": "每集不超过 1 次，且必须紧跟后果；不做重复慢放。"
+    },
+    {
+      "id": "R24",
+      "level": "avoid",
+      "title": "暗示性场所与软色情",
+      "keywords_zh": [
+        "KTV",
+        "按摩院",
+        "会所",
+        "夜总会",
+        "情趣酒店",
+        "桑拿",
+        "软色情",
+        "低俗台词"
+      ],
+      "keywords_en": [
+        "KTV private room",
+        "massage parlor",
+        "nightclub",
+        "adult hotel"
+      ],
+      "fix": "改为普通餐厅、茶楼、公司会议室。"
+    },
+    {
+      "id": "R25",
+      "level": "avoid",
+      "title": "孕妇相关不良情节",
+      "keywords_zh": [
+        "未婚先孕遭侮辱",
+        "家暴孕妇",
+        "虐待孕妇",
+        "孕妇抽烟",
+        "孕妇喝酒",
+        "伤害胎儿"
+      ],
+      "keywords_en": [
+        "humiliating pregnant woman",
+        "abusing pregnant woman"
+      ],
+      "fix": "可写但必须结尾回正。"
+    },
+    {
+      "id": "R26",
+      "level": "avoid",
+      "title": "惊悚与密集不适",
+      "keywords_zh": [
+        "惊悚吓人",
+        "密集恐惧",
+        "蛇虫鼠蚁",
+        "满地虫",
+        "老鼠成群",
+        "腐肉",
+        "蛆虫"
+      ],
+      "keywords_en": [
+        "jump scare",
+        "trypophobia",
+        "swarm of insects",
+        "rats",
+        "maggots"
+      ],
+      "fix": "改为声音暗示与角色反应，画面不做密集特写。"
+    },
+    {
+      "id": "R27",
+      "level": "avoid",
+      "title": "主角团不良行为",
+      "keywords_zh": [
+        "主角团作案",
+        "主角行骗",
+        "主角抢劫",
+        "主角盗窃",
+        "主角作弊",
+        "主角出轨",
+        "主角做假证",
+        "主角包庇罪犯"
+      ],
+      "keywords_en": [
+        "protagonist commits fraud",
+        "protagonist steals",
+        "protagonist cheats"
+      ],
+      "fix": "主角的手段必须合法合规；可用“灰色但被惩罚”的处理，不得作为爽点。"
+    },
+    {
+      "id": "R28",
+      "level": "avoid",
+      "title": "男女对立",
+      "keywords_zh": [
+        "男人没一个好东西",
+        "女人都物质",
+        "男人就是贱",
+        "女人就是蠢",
+        "性别对立",
+        "普信男",
+        "拜金女"
+      ],
+      "keywords_en": [
+        "all men are trash",
+        "all women are materialistic",
+        "gender conflict"
+      ],
+      "fix": "删除群体攻击性台词，矛盾落到具体人物。"
+    },
+    {
+      "id": "R29",
+      "level": "avoid",
+      "title": "年代剧墙面元素",
+      "keywords_zh": [
+        "墙体标语",
+        "墙上标语",
+        "名人语录",
+        "为人民服务",
+        "毛主席头像",
+        "年代标语",
+        "大字报"
+      ],
+      "keywords_en": [
+        "wall slogan",
+        "famous quotation on wall",
+        "propaganda poster"
+      ],
+      "fix": "年代剧墙面只留年画、奖状、挂历等无政治含义元素。"
+    },
+    {
+      "id": "R30",
+      "level": "avoid",
+      "title": "真实公司 / 城市 / 地名 / 商标",
+      "keywords_zh": [
+        "总公司在北京",
+        "腾讯",
+        "阿里",
+        "百度",
+        "京东",
+        "万达",
+        "可口可乐",
+        "麦当劳",
+        "肯德基",
+        "星巴克",
+        "苹果手机",
+        "华为手机",
+        "小米手机",
+        "奔驰",
+        "宝马",
+        "清华",
+        "北大",
+        "人民法院大楼"
+      ],
+      "keywords_en": [
+        "Tencent",
+        "Alibaba",
+        "Baidu",
+        "Coca-Cola",
+        "McDonald",
+        "KFC",
+        "Starbucks",
+        "iPhone",
+        "Mercedes-Benz",
+        "BMW",
+        "Tsinghua",
+        "Peking University"
+      ],
+      "fix": "改用虚构公司名、虚构城市名、虚构品牌；地标建筑一律架空。"
+    }
+  ]
+}

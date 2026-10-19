@@ -1,0 +1,228 @@
+{
+  "version": "1.0.0",
+  "note": "平台适配与制作参数。assemble.py 与 validate_project.py 读取本文件；制作细节见 references/production.md。",
+  "default_genre": "underdog",
+  "platforms": {
+    "douyin": {
+      "name": "抖音",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        60,
+        120
+      ],
+      "safe_top_px": 150,
+      "safe_bottom_px": 320,
+      "safe_left_px": 80,
+      "safe_right_px": 80,
+      "subtitle": "单行居中偏下，字号 60-72，白字黑描边",
+      "audio_loudness": "-14 LUFS",
+      "note": "前 3 秒决定完播；卡点结尾引导点进主页",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "抖音",
+        "douyin",
+        "dy"
+      ]
+    },
+    "kuaishou": {
+      "name": "快手",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        60,
+        120
+      ],
+      "safe_top_px": 150,
+      "safe_bottom_px": 300,
+      "safe_left_px": 80,
+      "safe_right_px": 80,
+      "subtitle": "单行居中偏下，字号 56-68",
+      "audio_loudness": "-14 LUFS",
+      "note": "重情绪与反转，适合家庭/伦理题材",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "快手",
+        "kuaishou",
+        "ks"
+      ]
+    },
+    "xiaohongshu": {
+      "name": "小红书",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        45,
+        90
+      ],
+      "safe_top_px": 180,
+      "safe_bottom_px": 380,
+      "safe_left_px": 90,
+      "safe_right_px": 90,
+      "subtitle": "单行居中偏下，字号 54-64，可配浅色花字",
+      "audio_loudness": "-16 LUFS",
+      "note": "封面帧决定点击率，需预留标题安全区",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "小红书",
+        "红书",
+        "xiaohongshu",
+        "xhs"
+      ]
+    },
+    "wechat-video": {
+      "name": "微信视频号",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        60,
+        180
+      ],
+      "safe_top_px": 140,
+      "safe_bottom_px": 260,
+      "safe_left_px": 70,
+      "safe_right_px": 70,
+      "subtitle": "单行居中偏下，字号 60-72",
+      "audio_loudness": "-16 LUFS",
+      "note": "中老年向题材需加大字号与语速",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "视频号",
+        "微信视频号",
+        "wechat",
+        "channels"
+      ]
+    },
+    "bilibili": {
+      "name": "B 站",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        90,
+        300
+      ],
+      "safe_top_px": 120,
+      "safe_bottom_px": 220,
+      "safe_left_px": 60,
+      "safe_right_px": 60,
+      "subtitle": "可双行，字号 48-60",
+      "audio_loudness": "-16 LUFS",
+      "note": "二次元/游戏题材友好，可接受更长单集",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "B站",
+        "b站",
+        "哔哩哔哩",
+        "bilibili"
+      ]
+    },
+    "tiktok": {
+      "name": "TikTok",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        45,
+        90
+      ],
+      "safe_top_px": 160,
+      "safe_bottom_px": 340,
+      "safe_left_px": 80,
+      "safe_right_px": 80,
+      "subtitle": "单行居中偏下，字号 56-68",
+      "audio_loudness": "-14 LUFS",
+      "note": "字幕必须内嵌英文或目标语言",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "tiktok"
+      ]
+    },
+    "reels": {
+      "name": "Instagram Reels",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        30,
+        90
+      ],
+      "safe_top_px": 200,
+      "safe_bottom_px": 400,
+      "safe_left_px": 90,
+      "safe_right_px": 90,
+      "subtitle": "单行居中偏下，字号 52-64",
+      "audio_loudness": "-14 LUFS",
+      "note": "右下/左下安全区被 UI 大量占用",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "reels",
+        "instagram",
+        "ins"
+      ]
+    },
+    "youtube-shorts": {
+      "name": "YouTube Shorts",
+      "aspect_ratio": "9:16",
+      "resolution": "1080x1920",
+      "fps": 30,
+      "episode_sec": [
+        45,
+        60
+      ],
+      "safe_top_px": 180,
+      "safe_bottom_px": 360,
+      "safe_left_px": 80,
+      "safe_right_px": 80,
+      "subtitle": "单行居中偏下，字号 56-68",
+      "audio_loudness": "-14 LUFS",
+      "note": "标题区在下方，前 2 秒必须出信息",
+      "ai_label": "按平台要求标注 AI 生成内容（以官方最新要求为准）",
+      "aliases": [
+        "youtube",
+        "shorts",
+        "油管"
+      ]
+    }
+  },
+  "negative_prompt": {
+    "base_en": "nsfw, nudity, deformed hands, extra fingers, extra limbs, mutated hands, missing fingers, poorly drawn face, distorted facial features, bad anatomy, cross-eyed, blurry, low resolution, jpeg artifacts, watermark, logo, signature, random text, gibberish text, duplicated character, inconsistent identity, overexposed, cartoonish artifacts",
+    "base_zh": "低画质，模糊，畸形的手，多余手指，缺指，面部崩坏，五官扭曲，人体结构错误，对眼，水印，LOGO，签名，乱码文字，同一画面出现重复人物，人物身份不一致，过曝",
+    "video_extra_en": "morphing face, flickering, temporal inconsistency, warping background, sudden identity swap, jitter, stutter",
+    "video_extra_zh": "面部变形闪烁，时序不一致，背景扭曲，人物身份突变，画面抖动卡顿"
+  },
+  "prompt_quality": {
+    "note": "提示词质量 lint 词库（validate_project.py 扫描，命中记 WARN）。空泛词 = 模型无法转译成画面的词（改写表见 references/cinematic-dictionary.md 第六节）；否定词 = 主提示词应写正向约束，否定项走负面词通道（prompt_recipes.md 原则 6）。只扫人工填写字段（action/lighting/场景描述/角色锚点/服装），不扫脚本自动拼装的风格后缀。",
+    "vague_words_zh": [
+      "电影感", "高级感", "戏剧性", "大师级", "好莱坞", "大片感",
+      "氛围感", "史诗感", "文艺片感", "艺术感", "震撼", "唯美"
+    ],
+    "vague_words_en": [
+      "cinematic feel", "masterpiece", "award-winning", "hollywood",
+      "epic feel", "high-end feel", "stunning", "breathtaking"
+    ],
+    "negation_words_zh": ["不要", "不能", "不得", "禁止", "避免出现"],
+    "negation_words_en": ["do not", "don't", "must not", "never "]
+  },
+  "limits": {
+    "shot_duration_sec": {
+      "min": 0.5,
+      "max": 30
+    },
+    "prompt_chars": {
+      "max": 15000
+    },
+    "cjk_chars_per_sec": 4,
+    "max_characters": 5,
+    "max_scenes": 12,
+    "note": "单镜时长硬约束 0.5-30 秒；单条提示词 ≤15000 字；口播按 cjk_chars_per_sec 字/秒核算；角色/场景数超过上限记 WARN。超限由 validate_project.py 与 build_prompts.py 执行。"
+  },
+  "ffmpeg": {
+    "scale_pad": "scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=0x101014",
+    "subtitle_style": "FontName=Microsoft YaHei,FontSize=64,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=1,Outline=2,Shadow=1,MarginV=240"
+  }
+}

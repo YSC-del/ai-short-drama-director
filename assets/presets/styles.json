@@ -1,0 +1,442 @@
+{
+  "version": "1.0.0",
+  "note": "视觉风格预设库。build_prompts.py 读取 prompt_suffix_zh / prompt_suffix_en 与 negative_extra_* 拼装提示词；选择方法论见 references/genres.md 与 references/prompt_recipes.md。",
+  "styles": {
+    "cinematic-realism": {
+      "name": "写实电影感",
+      "aliases": [
+        "写实",
+        "电影感",
+        "真人",
+        "实拍",
+        "质感",
+        "电影质感"
+      ],
+      "lighting": "伦勃朗光 + 环境光，强明暗对比，夜间霓虹或窗光",
+      "camera": "手持微晃 + 斯坦尼康长镜，推拉摇移克制",
+      "prompt_suffix_zh": "写实电影剧照，35mm 电影镜头，浅景深，真实皮肤肌理，戏剧性明暗对比光，胶片颗粒，超清细节",
+      "prompt_suffix_en": "photorealistic cinematic still, 35mm anamorphic lens, shallow depth of field, real skin texture, dramatic chiaroscuro lighting, subtle film grain, ultra detailed, 8k",
+      "negative_extra_en": "3d render, plastic skin, overly smooth face, anime, painting",
+      "negative_extra_zh": "3D 渲染感，塑料皮肤，过度磨皮，二次元，绘画感",
+      "consistency": "优先固定 seed + 角色参考图；换装保持面部锚点短语不变"
+    },
+    "chinese-3d": {
+      "name": "国漫 3D",
+      "aliases": [
+        "国漫",
+        "3D",
+        "三维",
+        "动画",
+        "国风3D",
+        "仙侠风"
+      ],
+      "lighting": "全局光 + 边缘光，仙侠逆光，粒子特效",
+      "camera": "大范围运镜，环绕、俯冲、粒子跟随",
+      "prompt_suffix_zh": "国产3D动画电影质感，精细建模，柔和肤质，华丽服饰，边缘光，粒子特效，国风配色，超高清渲染",
+      "prompt_suffix_en": "Chinese 3D animation film style, detailed 3D model, soft skin shading, ornate costume, rim light, particle effects, rich oriental color palette, ultra high quality render",
+      "negative_extra_en": "realistic photo, western cartoon, low poly, flat shading",
+      "negative_extra_zh": "写实照片，欧美卡通，低模，扁平着色",
+      "consistency": "角色三视图 + 固定配色 token；换装只改服装描述"
+    },
+    "anime-2d": {
+      "name": "日系二次元",
+      "aliases": [
+        "二次元",
+        "动漫",
+        "日漫",
+        "番剧",
+        "动漫风"
+      ],
+      "lighting": "柔和环境光，光斑，逆光发丝光",
+      "camera": "以静态构图为主，配合轻微平移与缩放",
+      "prompt_suffix_zh": "日式赛璐璐动画风格，干净线条，通透配色，柔和环境光，逆光发丝光，动漫截图质感",
+      "prompt_suffix_en": "Japanese cel-shaded anime style, clean lineart, luminous color palette, soft ambient light, backlit hair glow, anime screencap quality",
+      "negative_extra_en": "photorealistic, 3d render, oily skin, heavy noise",
+      "negative_extra_zh": "写实照片，3D 渲染，油腻皮肤，重噪点",
+      "consistency": "角色设定三视图 + 发色瞳色固定 token"
+    },
+    "comic-painterly": {
+      "name": "美漫厚涂",
+      "aliases": [
+        "美漫",
+        "厚涂",
+        "插画",
+        "绘本",
+        "油画感"
+      ],
+      "lighting": "强烈单光源，戏剧性投影",
+      "camera": "大幅透视，英雄式仰拍",
+      "prompt_suffix_zh": "厚涂插画风格，可见笔触，强烈单光源，浓郁色块，戏剧性投影，大师级插画",
+      "prompt_suffix_en": "painterly illustration, visible brush strokes, strong single light source, rich color blocks, dramatic shadows, masterwork illustration",
+      "negative_extra_en": "photo, 3d, flat vector, washed out",
+      "negative_extra_zh": "照片，3D，扁平矢量，色彩寡淡",
+      "consistency": "固定画风 token + 角色配色锚点"
+    },
+    "ink-wash": {
+      "name": "水墨国风",
+      "aliases": [
+        "水墨",
+        "国风",
+        "写意",
+        "水墨风",
+        "古风水墨"
+      ],
+      "lighting": "散光为主，云雾留白",
+      "camera": "缓慢横移，散点透视",
+      "prompt_suffix_zh": "中国水墨写意风格，大面积留白，墨色浓淡层次，飞白笔触，淡彩点缀，意境悠远",
+      "prompt_suffix_en": "Chinese ink wash painting style, generous negative space, layered ink tones, dry brush texture, subtle mineral pigment accents, poetic atmosphere",
+      "negative_extra_en": "photo, neon, high saturation, heavy contrast",
+      "negative_extra_zh": "照片，霓虹，高饱和，强对比",
+      "consistency": "控制墨色 token 与服装色，避免细节过多"
+    },
+    "cyberpunk-neon": {
+      "name": "赛博霓虹",
+      "aliases": [
+        "赛博朋克",
+        "霓虹",
+        "未来感",
+        "科幻感",
+        "电子"
+      ],
+      "lighting": "霓虹主光，体积雾，屏幕冷光",
+      "camera": "低角度广角，缓慢推进，屏幕反射",
+      "prompt_suffix_zh": "赛博朋克都市，霓虹招牌，湿滑地面反光，雨雾，体积光，品红与青蓝配色，电影级",
+      "prompt_suffix_en": "cyberpunk megacity, neon signage, wet reflective ground, rain haze, volumetric light, magenta and cyan palette, cinematic",
+      "negative_extra_en": "daylight, pastoral, low contrast",
+      "negative_extra_zh": "日光，田园，低对比",
+      "consistency": "固定城市区块与配色 token"
+    },
+    "film-retro": {
+      "name": "复古胶片",
+      "aliases": [
+        "复古",
+        "胶片",
+        "怀旧",
+        "年代",
+        "老照片"
+      ],
+      "lighting": "自然窗光，钨丝灯暖光",
+      "camera": "固定机位与缓慢推镜",
+      "prompt_suffix_zh": "胶片质感，可见颗粒，轻微失焦，暖调复古偏色，柔和低对比，年代感",
+      "prompt_suffix_en": "film photography, visible grain, slight soft focus, warm retro color grading, low contrast, nostalgic atmosphere",
+      "negative_extra_en": "digital sharpness, neon, oversaturated",
+      "negative_extra_zh": "数码锐利，霓虹，过饱和",
+      "consistency": "年代道具与服装 token 必须稳定"
+    },
+    "korean-bright": {
+      "name": "韩系明亮偶像",
+      "aliases": [
+        "韩系",
+        "韩剧",
+        "明亮",
+        "偶像剧",
+        "清新"
+      ],
+      "lighting": "大面积柔光，逆光发丝，光斑",
+      "camera": "稳定器平移，缓慢推近",
+      "prompt_suffix_zh": "韩剧偶像剧质感，柔光，明亮通透，逆光发丝，光斑，高明度低饱和，画面干净",
+      "prompt_suffix_en": "K-drama romantic look, soft diffused light, bright airy tone, backlit hair, bokeh, high-key low-saturation palette, clean image",
+      "negative_extra_en": "harsh shadow, gritty, dark moody",
+      "negative_extra_zh": "硬阴影，脏感，暗黑压抑",
+      "consistency": "妆造与光位固定"
+    },
+    "dark-gothic": {
+      "name": "暗黑哥特",
+      "aliases": [
+        "暗黑",
+        "哥特",
+        "阴森",
+        "压抑",
+        "暗调"
+      ],
+      "lighting": "单一弱光源，烛光/顶光",
+      "camera": "缓慢后拉，长焦压迫感",
+      "prompt_suffix_zh": "暗黑哥特风格，浓重阴影，单一弱光源，墨绿与暗红配色，长焦压迫感，氛围阴森",
+      "prompt_suffix_en": "dark gothic style, heavy shadows, single weak light source, deep green and dark crimson palette, telephoto compression, eerie atmosphere",
+      "negative_extra_en": "bright, cheerful, pastel",
+      "negative_extra_zh": "明亮，欢快，粉彩",
+      "consistency": "固定光位与场景结构"
+    },
+    "toon-shading": {
+      "name": "卡通渲染",
+      "aliases": [
+        "卡通",
+        "卡渲",
+        "二次元3D",
+        "游戏风",
+        "三渲二"
+      ],
+      "lighting": "平面化光照，简单高光",
+      "camera": "夸张透视，快速运镜",
+      "prompt_suffix_zh": "三渲二卡通渲染，色块阴影，描边，鲜艳明快配色，游戏过场动画质感",
+      "prompt_suffix_en": "cel-shaded toon rendering, flat color shadows, clean outline, vivid palette, game cutscene quality",
+      "negative_extra_en": "photorealistic, oil painting, heavy grain",
+      "negative_extra_zh": "写实照片，油画，重颗粒",
+      "consistency": "模型与配色 token 固定，避免细节写实化"
+    },
+    "claymation": {
+      "name": "黏土定格",
+      "aliases": [
+        "黏土",
+        "定格",
+        "手工",
+        "泥塑"
+      ],
+      "lighting": "实体布光，柔和阴影",
+      "camera": "微距，轻微跳动感",
+      "prompt_suffix_zh": "黏土定格动画风格，手工模型肌理，哑光材质，柔和实体布光，微距画面",
+      "prompt_suffix_en": "claymation stop-motion style, handmade clay texture, matte material, soft practical lighting, macro shot",
+      "negative_extra_en": "photorealistic human, glossy plastic",
+      "negative_extra_zh": "写实真人，反光塑料",
+      "consistency": "造型比例与配色 token 固定"
+    },
+    "pixel-retro": {
+      "name": "像素复古",
+      "aliases": [
+        "像素",
+        "8bit",
+        "复古游戏",
+        "点阵"
+      ],
+      "lighting": "色块明暗",
+      "camera": "横向卷轴，帧动画",
+      "prompt_suffix_zh": "像素艺术风格，8-bit 点阵，有限调色板，复古游戏画面，横向卷轴构图",
+      "prompt_suffix_en": "pixel art style, 8-bit sprites, limited palette, retro game screen, side-scroll composition",
+      "negative_extra_en": "photorealistic, smooth gradient, anti-aliased photo",
+      "negative_extra_zh": "写实，平滑渐变，抗锯齿照片",
+      "consistency": "调色板固定"
+    },
+    "meme-comedy": {
+      "name": "沙雕表情包",
+      "aliases": [
+        "沙雕",
+        "表情包",
+        "搞笑风",
+        "鬼畜"
+      ],
+      "lighting": "平光，无明显阴影",
+      "camera": "正面直拍，突然推近",
+      "prompt_suffix_zh": "夸张喜剧风格，平光，高亮鲜艳配色，正面直拍构图，表情夸张，网络梗图质感",
+      "prompt_suffix_en": "exaggerated comedy style, flat lighting, bright saturated colors, frontal framing, expressive face, internet meme aesthetic",
+      "negative_extra_en": "moody, film noir, desaturated",
+      "negative_extra_zh": "阴郁，黑色电影，低饱和",
+      "consistency": "人物造型夸张化但保持识别特征"
+    },
+    "noir-bw": {
+      "name": "黑白悬疑",
+      "aliases": [
+        "黑白",
+        "黑色电影",
+        "黑白片",
+        " noir"
+      ],
+      "lighting": "单一硬光源，深阴影",
+      "camera": "低角度，广角畸变，缓慢推近",
+      "prompt_suffix_zh": "黑白电影风格，高反差硬光，百叶窗投影，深阴影，低角度构图，胶片颗粒",
+      "prompt_suffix_en": "black and white noir film style, high contrast hard light, venetian blind shadows, deep blacks, low angle composition, film grain",
+      "negative_extra_en": "colorful, pastel, bright cheerful",
+      "negative_extra_zh": "彩色，粉彩，明亮欢快",
+      "consistency": "服装材质与光位固定，靠轮廓与道具区分人物"
+    },
+    "documentary": {
+      "name": "纪实手持",
+      "aliases": [
+        "纪实",
+        "纪录片",
+        "手持",
+        "新闻感",
+        "vlog"
+      ],
+      "lighting": "可用光，混合色温",
+      "camera": "手持晃动，快速跟随",
+      "prompt_suffix_zh": "纪录片质感，手持摄影，自然光，真实场景，低饱和，轻微晃动",
+      "prompt_suffix_en": "documentary style, handheld camera, natural available light, real-world setting, desaturated tones, subtle shake",
+      "negative_extra_en": "studio lighting, glossy, over-saturated",
+      "negative_extra_zh": "影棚布光，光滑感，过饱和",
+      "consistency": "环境真实度优先，人物以服装锚点区分"
+    },
+    "luxury-commercial": {
+      "name": "高级广告质感",
+      "aliases": [
+        "广告",
+        "高级感",
+        "商业",
+        "质感大片",
+        "时尚"
+      ],
+      "lighting": "三点布光 + 轮廓光 + 柔光箱",
+      "camera": "慢速推轨，环绕，微距细节",
+      "prompt_suffix_zh": "高级商业广告质感，三点布光，轮廓光，干净背景，慢速推轨镜头，微距细节，超清质感",
+      "prompt_suffix_en": "high-end commercial film look, three-point lighting, rim light, clean background, slow dolly, macro detail, pristine ultra quality",
+      "negative_extra_en": "cheap, cluttered background, harsh shadows, low budget look",
+      "negative_extra_zh": "廉价感，杂乱背景，生硬阴影，低预算质感",
+      "consistency": "产品参考图必须固定；产品比例与材质不得漂移"
+    },
+    "steampunk": {
+      "name": "蒸汽朋克",
+      "aliases": [
+        "蒸汽朋克",
+        "齿轮",
+        "机械",
+        "维多利亚"
+      ],
+      "lighting": "暖黄灯光 + 蒸汽散射",
+      "camera": "缓慢横移，机械结构特写",
+      "prompt_suffix_zh": "蒸汽朋克风格，黄铜齿轮与管道，维多利亚服饰，暖黄灯光，蒸汽散射，机械结构特写",
+      "prompt_suffix_en": "steampunk style, brass gears and pipes, victorian costume, warm tungsten light, steam haze, mechanical detail close-up",
+      "negative_extra_en": "modern plastic, neon, minimalist",
+      "negative_extra_zh": "现代塑料，霓虹，极简",
+      "consistency": "机械结构与材质 token 固定"
+    },
+    "ancient-realism": {
+      "name": "古代真人",
+      "aliases": [
+        "古代真人",
+        "古装真人",
+        "古代",
+        "古装",
+        "历史真人",
+        "正剧"
+      ],
+      "lighting": "自然日光、烛火、灯笼暖光、火盆",
+      "camera": "固定机位 + 缓慢推轨，长镜头，对称构图",
+      "prompt_suffix_zh": "中国古代真人实拍风格，考据汉服与木构建筑，自然烟火，烛光与灯笼暖光，低饱和暖褐色调，胶片颗粒，电影级构图",
+      "prompt_suffix_en": "ancient Chinese live-action cinematic look, historically accurate hanfu and timber architecture, natural practical light, candle and lantern warmth, desaturated earthy palette, film grain, widescreen composition",
+      "negative_extra_en": "modern clothing, modern building, neon, wristwatch, zipper, sneakers, plastic",
+      "negative_extra_zh": "现代服装，现代建筑，霓虹，手表，拉链，运动鞋，塑料制品",
+      "consistency": "服装形制与发簪配饰 token 固定；严禁混入任何现代物件"
+    },
+    "apocalyptic-realism": {
+      "name": "末日真人",
+      "aliases": [
+        "末日真人",
+        "废土真人",
+        "末世真人",
+        "末日写实"
+      ],
+      "lighting": "灰蒙天光、车灯、火光、手电",
+      "camera": "手持、跟随、长焦压缩",
+      "prompt_suffix_zh": "写实末日废土风格，破损城市与风沙，去饱和沙黄与铁灰色调，手持摄影，真实材质与锈蚀细节，电影级颗粒",
+      "prompt_suffix_en": "realistic post-apocalyptic wasteland, ruined city and dust storm, desaturated sand and iron grey palette, handheld camera, real materials with rust details, cinematic grain",
+      "negative_extra_en": "clean streets, bright colors, lush greenery, polished modern city, cheerful, sunny",
+      "negative_extra_zh": "干净街道，鲜艳色彩，茂密绿植，光鲜现代都市，欢快，晴天",
+      "consistency": "破损程度与服装做旧 token 固定；同场景保持同一天气与能见度"
+    },
+    "modern-urban-realism": {
+      "name": "现代都市真人",
+      "aliases": [
+        "现代都市真人",
+        "都市真人",
+        "现代都市",
+        "都市写实",
+        "都市剧"
+      ],
+      "lighting": "冷白顶光、霓虹反光、车窗反光、便利店白炽灯",
+      "camera": "手持 + 稳定器结合，快切，过肩",
+      "prompt_suffix_zh": "现代都市写实风格，玻璃幕墙写字楼与街道，冷白顶光与霓虹反光，冷灰蓝色调，手持与稳定器结合，都市电影感",
+      "prompt_suffix_en": "modern urban realistic style, glass-curtain office towers and city streets, cold overhead lighting and neon reflections, cool grey-blue palette, handheld and steadicam mix, urban film look",
+      "negative_extra_en": "ancient costume, rural farmland, fantasy elements, medieval, magical glow",
+      "negative_extra_zh": "古装，农村田野，奇幻元素，中世纪，魔法光效",
+      "consistency": "同一角色通勤装与正装两套 token 固定；写字楼与街区结构保持一致"
+    },
+    "3d-anime": {
+      "name": "3D 动漫",
+      "aliases": [
+        "3D动漫",
+        "三维动漫",
+        "3D动画剧集",
+        "三渲二动漫"
+      ],
+      "lighting": "三点布光 + 边缘光 + 柔光箱",
+      "camera": "环绕、推轨、动态运镜",
+      "prompt_suffix_zh": "现代3D动画剧集质感，干净精细建模，柔和次表面散射肤质，三点布光与边缘光，明亮通透配色，动态运镜",
+      "prompt_suffix_en": "modern 3D animated series look, clean detailed modeling, soft subsurface scattering skin, three-point lighting with rim light, bright airy palette, dynamic camera work",
+      "negative_extra_en": "photorealistic, live action, flat 2d, low poly, western cartoon",
+      "negative_extra_zh": "写实照片，真人实拍，扁平2D，低模，欧美卡通",
+      "consistency": "角色建模比例与配色 token 固定；同剧不得混入 2D 帧"
+    },
+    "makoto-shinkai": {
+      "name": "新海诚画风",
+      "aliases": [
+        "新海诚",
+        "新海城",
+        "诚哥风",
+        "日系唯美",
+        "新海诚画风"
+      ],
+      "lighting": "强逆光 + 丁达尔效应 + 镜头光斑",
+      "camera": "缓慢横移 + 大幅上升，云层穿越，水面倒影",
+      "prompt_suffix_zh": "新海诚动画风格，极致通透的天空与体积云，强逆光与丁达尔效应，超高饱和蓝天与紫橙黄昏，电线与水面反光，细腻光斑",
+      "prompt_suffix_en": "Makoto Shinkai animation style, extremely luminous sky and volumetric clouds, strong backlight and god rays, ultra-saturated blue sky and purple-orange dusk, telephone wires and water reflections, delicate lens flares",
+      "negative_extra_en": "photorealistic, 3d render, dark gloomy, low saturation, western cartoon",
+      "negative_extra_zh": "写实照片，3D 渲染，阴暗压抑，低饱和，欧美卡通",
+      "consistency": "天空与逆光 token 固定；人物用干净线稿，避免过度阴影"
+    },
+    "urban-anime": {
+      "name": "都市动漫",
+      "aliases": [
+        "都市动漫",
+        "都市动画",
+        "都市番剧",
+        "日常动漫"
+      ],
+      "lighting": "夜间霓虹、便利店冷白光、窗内暖光、路灯",
+      "camera": "静止构图 + 缓慢推近，过肩对话",
+      "prompt_suffix_zh": "都市动漫风格，便利店与公寓街景，夜间霓虹与窗内暖光，夜蓝与暖黄对比，细腻背景作画，动画截图质感",
+      "prompt_suffix_en": "urban anime style, convenience store and apartment streetscape, night neon and warm window light, night blue and warm yellow contrast, detailed background art, anime screencap quality",
+      "negative_extra_en": "photorealistic, ancient, rural farmland, low detail background",
+      "negative_extra_zh": "写实照片，古代，农村田野，背景粗糙",
+      "consistency": "街区结构与店铺招牌 token 固定；同一居所的家具布局保持一致"
+    },
+    "wuxia-anime": {
+      "name": "古风武侠动漫",
+      "aliases": [
+        "古风武侠动漫",
+        "武侠动漫",
+        "古风动漫",
+        "国风动漫",
+        "仙侠动漫"
+      ],
+      "lighting": "月光、竹影、烛火、剑气反光",
+      "camera": "快速运镜 + 剑光定格，环绕登场",
+      "prompt_suffix_zh": "古风武侠动漫风格，水墨质感竹林与客栈背景，动漫人物，月光与竹影，墨青与竹绿配色，快速运镜与剑光定格",
+      "prompt_suffix_en": "ancient wuxia anime style, ink-wash bamboo forest and inn backgrounds, anime characters, moonlight and bamboo shadows, ink-teal and bamboo-green palette, swift camera moves and frozen sword-light moments",
+      "negative_extra_en": "photorealistic, modern city, neon, western medieval, modern clothing",
+      "negative_extra_zh": "写实照片，现代都市，霓虹，欧美中世纪，现代服装",
+      "consistency": "人物发色与服饰纹样 token 固定；水墨背景浓淡保持一致"
+    },
+    "suspense-anime": {
+      "name": "悬疑动漫",
+      "aliases": [
+        "悬疑动漫",
+        "悬疑动画",
+        "推理动漫",
+        "暗黑动漫"
+      ],
+      "lighting": "单一冷光源 + 屏幕辉光 + 闪电",
+      "camera": "缓慢后拉 + 突然推近，固定长镜",
+      "prompt_suffix_zh": "悬疑动漫风格，高对比阴影与狭窄空间，雨夜与监视器辉光，深蓝黑与血红点缀，缓慢后拉与突然推近，压抑氛围",
+      "prompt_suffix_en": "suspense anime style, high-contrast shadows and claustrophobic spaces, rainy night and monitor glow, deep blue-black with crimson accents, slow pull-back and sudden push-in, oppressive atmosphere",
+      "negative_extra_en": "bright cheerful, pastel, comedy, flat lighting, slice of life warmth",
+      "negative_extra_zh": "明亮欢快，粉彩，喜剧，平光，日常治愈感",
+      "consistency": "冷光源方向固定；血与警报灯的红色色值保持一致"
+    },
+    "medieval-realism": {
+      "name": "欧美中世纪真人",
+      "aliases": [
+        "欧美中世纪真人",
+        "中世纪真人",
+        "中世纪",
+        "西幻真人",
+        "欧洲古代真人"
+      ],
+      "lighting": "篝火、烛光、阴天自然光、彩窗投光",
+      "camera": "手持 + 长镜头，低角度仰拍",
+      "prompt_suffix_zh": "欧洲中世纪真人实拍风格，石堡与甲胄，篝火与烛光，铁灰与土褐色调，手持长镜头，粗粝材质，史诗电影感",
+      "prompt_suffix_en": "European medieval live-action look, stone castles and plate armor, campfire and candlelight, iron grey and earth brown palette, handheld long takes, rough textures, epic cinematic feel",
+      "negative_extra_en": "modern clothing, glass building, neon, asian architecture, clean polished",
+      "negative_extra_zh": "现代服装，玻璃建筑，霓虹，东方建筑，干净光鲜",
+      "consistency": "甲胄形制与徽章 token 固定；同场景保持同一火源与时段"
+    }
+  }
+}

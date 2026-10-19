@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__ · AI 短剧分镜墙</title>
+<style>
+  :root{
+    --bg:#0d0f14; --panel:#151922; --panel2:#1c212d; --line:#262d3b;
+    --txt:#e8ecf4; --dim:#8b95a7; --acc:#5b8cff; --ok:#3ecf8e; --warn:#f5a524; --err:#f45b69;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.6 "Microsoft YaHei","PingFang SC",system-ui,sans-serif;padding:24px}
+  header{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+  h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .tag{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 12px;font-size:12px;color:var(--dim)}
+  .tag b{color:var(--txt);font-weight:600}
+  .stats{display:flex;gap:10px;flex-wrap:wrap}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-width:86px;text-align:center}
+  .stat span{display:block;font-size:20px;font-weight:700}
+  .stat small{color:var(--dim);font-size:11px}
+  .bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:4px 0 18px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--ok));width:0}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  select,input{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
+  input{min-width:220px}
+  select:focus,input:focus{border-color:var(--acc)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .card.hide{display:none}
+  .thumb{position:relative;aspect-ratio:9/16;background:#0a0c11 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#39414f;font-size:12px;border-bottom:1px solid var(--line)}
+  .thumb img,.thumb video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+  .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;backdrop-filter:blur(4px)}
+  .badge.dur{left:auto;right:8px;background:rgba(0,0,0,.65)}
+  .body{padding:12px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .row{display:flex;gap:6px;flex-wrap:wrap;font-size:11px}
+  .chip{background:var(--panel2);border-radius:5px;padding:1px 7px;color:var(--dim)}
+  .chip.k{color:var(--acc)}
+  .act{font-size:13px;color:var(--txt)}
+  .dlg{background:var(--panel2);border-left:3px solid var(--acc);border-radius:0 6px 6px 0;padding:6px 10px;font-size:12.5px}
+  .dlg b{color:var(--acc)}
+  .narr{font-size:12px;color:var(--dim);font-style:italic}
+  .foot{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim)}
+  .st{padding:1px 8px;border-radius:99px;font-weight:600}
+  .st.pending{background:#2a2f3b;color:var(--dim)}
+  .st.image_done{background:#24354f;color:#8ab4ff}
+  .st.video_done{background:#3a3320;color:var(--warn)}
+  .st.done{background:#173a2c;color:var(--ok)}
+  .note{font-size:10px;color:var(--warn);border:1px dashed var(--warn);border-radius:4px;padding:0 5px}
+  .empty{padding:40px;text-align:center;color:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="t"></h1>
+    <div class="meta" id="m"></div>
+  </div>
+  <div class="stats" id="s"></div>
+</header>
+<div class="bar"><i id="prog"></i></div>
+<div class="controls">
+  <select id="fEp"><option value="">全部集数</option></select>
+  <select id="fSt"><option value="">全部状态</option><option>pending</option><option>image_done</option><option>video_done</option><option>done</option></select>
+  <input id="fQ" placeholder="搜索镜头 / 角色 / 场景 / 对白…">
+</div>
+<div class="grid" id="g"></div>
+<div class="empty" id="e" style="display:none">没有匹配的镜头</div>
+
+<script>
+const DATA = __DATA__;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+
+$('t').textContent = (DATA.meta.title || '未命名') + ' · 分镜墙';
+$('m').innerHTML = [
+  ['题材', DATA._genreName], ['风格', DATA._styleName], ['平台', DATA._platformName],
+  ['集数', DATA.config.episode_count], ['单集', DATA.config.episode_duration_sec + 's'],
+  ['画幅', DATA.meta.aspect_ratio]
+].map(([k, v]) => `<span class="tag">${k} <b>${esc(v)}</b></span>`).join('');
+
+const all = [];
+(DATA.episodes || []).forEach(ep => (ep.shots || []).forEach(sh => all.push({ep, sh})));
+const done = all.filter(x => x.sh.status === 'done').length;
+const img = all.filter(x => x.sh.assets && x.sh.assets.image).length;
+const vid = all.filter(x => x.sh.assets && x.sh.assets.video).length;
+
+$('s').innerHTML = [
+  ['镜头', all.length], ['集数', (DATA.episodes || []).length],
+  ['已出图', img], ['已出视频', vid], ['已完成', done],
+  ['总时长', all.reduce((a, b) => a + (Number(b.sh.duration_sec) || 0), 0) + 's']
+].map(([k, v]) => `<div class="stat"><span>${esc(v)}</span><small>${k}</small></div>`).join('');
+$('prog').style.width = (all.length ? done / all.length * 100 : 0) + '%';
+
+[...new Set(DATA.episodes.map(e => e.id))].forEach(id =>
+  $('fEp').insertAdjacentHTML('beforeend', `<option>${esc(id)}</option>`));
+
+function render() {
+  const ep = $('fEp').value, st = $('fSt').value, q = $('fQ').value.trim().toLowerCase();
+  const box = $('g'); box.innerHTML = '';
+  let n = 0;
+  all.forEach(({ep: E, sh}) => {
+    if (ep && E.id !== ep) return;
+    if (st && sh.status !== st) return;
+    const hay = [sh.id, sh.shot_size, sh.camera, sh.action, sh.scene_id,
+                 (sh.characters || []).join(' '), (sh.dialogue || {}).text, sh.narration].join(' ').toLowerCase();
+    if (q && !hay.includes(q)) return;
+    n++;
+    const imgPath = (sh.assets && sh.assets.image) || '';
+    const vidPath = (sh.assets && sh.assets.video) || '';
+    const thumb = vidPath
+      ? `<video src="${esc(vidPath)}" poster="${esc(imgPath)}" controls preload="none" playsinline></video>`
+      : (imgPath ? `<img src="${esc(imgPath)}" loading="lazy">` : '无首帧图');
+    const chars = (sh.characters || []).map(id => {
+      const c = (DATA.characters || []).find(x => x.id === id);
+      return c ? c.name || id : id;
+    });
+    box.insertAdjacentHTML('beforeend', `
+      <div class="card">
+        <div class="thumb">${thumb}<span class="badge">${esc(sh.id)}</span><span class="badge dur">${esc(sh.duration_sec ?? '?')}s</span></div>
+        <div class="body">
+          <div class="row">
+            <span class="chip k">${esc(sh.shot_size || '')}</span>
+            ${sh.beat ? `<span class="chip" style="color:var(--ok)">大分镜·${esc(sh.beat)}</span>` : ''}
+            <span class="chip">${esc(sh.camera || '')}</span>
+            <span class="chip">${esc(sh.scene_id || '')}</span>
+            ${chars.map(c => `<span class="chip">${esc(c)}</span>`).join('')}
+          </div>
+          <div class="act">${esc(sh.action || '')}</div>
+          ${sh.blocking ? `<div class="row"><span class="chip">站位 ${esc(sh.blocking)}</span></div>` : ''}
+          ${sh.dialogue && sh.dialogue.text ? `<div class="dlg"><b>${esc((sh.dialogue.character) || '')}</b>：${esc(sh.dialogue.text)}</div>` : ''}
+          ${sh.narration ? `<div class="narr">旁白：${esc(sh.narration)}</div>` : ''}
+          ${sh.sfx ? `<div class="row"><span class="chip">音效 ${esc(sh.sfx)}</span></div>` : ''}
+          <div class="foot">
+            <span>${esc(sh.transition_in || '硬切')}${sh.notes ? ` · <span class="note">${esc(sh.notes)}</span>` : ''}</span>
+            <span class="st ${esc(sh.status || 'pending')}">${esc(sh.status || 'pending')}</span>
+          </div>
+        </div>
+      </div>`);
+  });
+  $('e').style.display = n ? 'none' : 'block';
+}
+['fEp', 'fSt'].forEach(id => $(id).addEventListener('change', render));
+$('fQ').addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
